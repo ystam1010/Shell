@@ -1,4 +1,7 @@
-#!/bin/ksh
+\#!/bin/ksh
 function WAS() {
-  echo "test"
+  if [[ ! -lq "0" ]]; then
+    #statement
+    echo "muilt test"
+  fi
 }
