@@ -88,13 +88,16 @@ PROC=`ps -ef |grep $CTN |grep -v grep |wc -l`
         cd $JPATH/ISCM013/bin
         sh $STOP
 
-##### contaniner 명출력###########
+##### contaniner PORT_OFFSET ###########
 OFFSET=`sed -n -e '/PORT_OFFSET/p'  ./env.sh | head -1 |awk -F "=" '{print $2}'`
+
+##### contaniner PORT_OFFSET + Default Service PORT 변수
 IOFFSET=`expr $OFFSET + 8081`
-#echo $IOFFSET
+
+### Service Port Count
 SPORT=`netstat -lnt |grep $IOFFSET |wc -l`
 
-##### contaniner 명출력###########
+##### contaniner Nanme Search 변수
 CTN=`sed -n -e '/SERVER_NAME/p'  ./env.sh | head -1 |awk -F "=" '{print $2}'`
 PROC=`ps -ef |grep $CTN |grep -v grep |wc -l`
 
