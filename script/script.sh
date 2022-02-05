@@ -53,6 +53,24 @@ STOP=./stop.sh
    fi
 }
 
+SERVICE_SELECT()
+{
+  echo "##################################################"
+  echo "#####     공통/동원 명령  : ICOM011          ########"
+  echo "#####     기준 정보      : IMDM012          ########"
+  echo "#####     공급망/통합관제 : ISCM013\          ########"
+  echo "#####     창고 관리      : IWMS014          ########"
+  echo "#####     운송 관리      : ITMS015          ########"
+  echo "#####     리포팅 툴      : IRPT016          ########"
+  echo "##################################################"
+ echo " "
+ echo " "
+  echo " 시작할 서비스 명을 입력 하세요 : "
+
+  while read SERVICE
+  do
+}
+
 echo "##################################################"
 echo "#####      START select number : 1        ########"
 echo "#####      STOP select number : 2         ########"
@@ -66,7 +84,9 @@ do
 
 case $NUM in
         1)
-                cd $JPATH/ISCM013/bin
+#### Function Call
+SERVICE_SELECT
+                cd $JPATH/$SERVICE/bin
                 sh $START
         sleep  2
 ##### contaniner 명출력###########
@@ -84,8 +104,10 @@ PROC=`ps -ef |grep $CTN |grep -v grep |wc -l`
         ;;
 
 
-  2)
-        cd $JPATH/ISCM013/bin
+        2)
+#### Function Call
+  SERVICE_SELECT
+        cd $JPATH/$SERVICE/bin
         sh $STOP
 
 ##### contaniner PORT_OFFSET ###########
