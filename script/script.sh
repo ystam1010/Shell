@@ -58,14 +58,14 @@ SERVICE_SELECT()
   echo "##################################################"
   echo "#####     공통/동원 명령  : ICOM011          ########"
   echo "#####     기준 정보      : IMDM012          ########"
-  echo "#####     공급망/통합관제 : ISCM013\          ########"
+  echo "#####     공급망/통합관제 : ISCM013           ########"
   echo "#####     창고 관리      : IWMS014          ########"
   echo "#####     운송 관리      : ITMS015          ########"
   echo "#####     리포팅 툴      : IRPT016          ########"
   echo "##################################################"
  echo " "
  echo " "
-  echo " 시작할 서비스 명을 입력 하세요 : "
+  echo " START/STOP 서비스 명을 입력 하세요(ex : ICOM011) : "
 
   while read SERVICE
   do
@@ -99,6 +99,7 @@ SPORT=`netstat -lnt |grep $IOFFSET |wc -l`
 CTN=`sed -n -e '/SERVER_NAME/p'  ./env.sh | head -1 |awk -F "=" '{print $2}'`
 PROC=`ps -ef |grep $CTN |grep -v grep |wc -l`
 
+#### Function Call
        START_PROC
 
         ;;
@@ -123,6 +124,7 @@ SPORT=`netstat -lnt |grep $IOFFSET |wc -l`
 CTN=`sed -n -e '/SERVER_NAME/p'  ./env.sh | head -1 |awk -F "=" '{print $2}'`
 PROC=`ps -ef |grep $CTN |grep -v grep |wc -l`
 
+#### Function Call
        STOP_PROC
 
         ;;
