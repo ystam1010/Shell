@@ -2,7 +2,7 @@
 JPATH=/GCLOUD/JBOSS/domains
 START=./start.sh
 STOP=./stop.sh
-
+#######
   START_PROC()
 {
    if [ "$SPORT" -ge "1" ] && [ "${PROC}" -ge "2" ];
