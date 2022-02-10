@@ -37,7 +37,7 @@ STOP=./stop.sh
                 echo ""
                 echo "##################################################"
                 echo "####     $CTN Service STOP Complate!!!       #####"
-                echo "####     Process &  PORT= $IOFFSET DWWN      #####"
+                echo "####     Process &  PORT= $IOFFSET DOWN      #####"
                 echo "##################################################"
                 echo "`netstat -lnt |grep $IOFFSET`"
                 echo "`ps -ef |grep $CTN |grep -v grep`"
@@ -47,7 +47,7 @@ STOP=./stop.sh
                 echo ""
                 echo ""
                 echo "##################################################"
-                echo "######       $CNT Demon Start Faile        #######"
+                echo "######       $CNT Demon STOP Faile        #######"
                 echo "##################################################"
                 cd /GCLOUD/JBOSS
    fi
@@ -56,20 +56,23 @@ STOP=./stop.sh
 SERVICE_SELECT()
 {
   echo "##################################################"
-  echo "#####     공통/동원 명령  : ICOM011          ########"
-  echo "#####     기준 정보      : IMDM012          ########"
-  echo "#####     공급망/통합관제 : ISCM013           ########"
-  echo "#####     창고 관리      : IWMS014          ########"
-  echo "#####     운송 관리      : ITMS015          ########"
-  echo "#####     리포팅 툴      : IRPT016          ########"
+  echo "#####     공통/동원 명령  : ICOM011          #####"
+  echo "#####     기준 정보      : IMDM012           #####"
+  echo "#####     공급망/통합관제 : ISCM013          #####"
+  echo "#####     창고 관리      : IWMS014           #####"
+  echo "#####     운송 관리      : ITMS015           #####"
+  echo "#####     리포팅 툴      : IRPT016           #####"
   echo "##################################################"
  echo " "
  echo " "
+}
+
+        SERVICE_SELECT
+
   echo " START/STOP 서비스 명을 입력 하세요(ex : ICOM011) : "
 
   while read SERVICE
-  do
-}
+
 
 echo "##################################################"
 echo "#####      START select number : 1        ########"
@@ -79,7 +82,7 @@ echo "##################################################"
 
 echo " START & STOP NUM select? : "
 
-while read NUM
+read NUM
 do
 
 case $NUM in
@@ -107,10 +110,9 @@ PROC=`ps -ef |grep $CTN |grep -v grep |wc -l`
 
         2)
 #### Function Call
-  SERVICE_SELECT
-        cd $JPATH/$SERVICE/bin
+      cd $JPATH/$SERVICE/bin
         sh $STOP
-
+sleep 5
 ##### contaniner PORT_OFFSET ###########
 OFFSET=`sed -n -e '/PORT_OFFSET/p'  ./env.sh | head -1 |awk -F "=" '{print $2}'`
 
