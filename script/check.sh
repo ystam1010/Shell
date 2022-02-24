@@ -1,10 +1,9 @@
-#!/bin/sh
+#!/sbin/ksh
 set -x 
-today=`date`
+export today=`date`
 
 export LANG=ko_KR.utf8
-
-mkdir -p /tmp/ta-script/
+mkdir -p /tmp/ta-script/script_$today.log
 
   echo "##################################################"
   echo "#####     RHEL Linux 8 : 1 입력            ########"
@@ -53,3 +52,4 @@ echo " "
   echo " "
   echo "#######  2)  ############"
    echo " "
+  
