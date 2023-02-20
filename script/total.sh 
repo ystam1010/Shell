@@ -2,7 +2,13 @@
 JPATH=/GCLOUD/JBOSS/domains
 START=./start.sh
 STOP=./stop.sh
-#######
+  export SERVICE01=ICOM011
+  export SERVICE02=IMDM012
+  export SERVICE03=ISCM013
+  export SERVICE04=IWMS014
+  export SERVICE05=ITMS015
+  export SERVICE06=IRPT016
+
   START_PROC()
 {
    if [ "$SPORT" -ge "1" ] && [ "${PROC}" -ge "2" ];
@@ -53,22 +59,21 @@ STOP=./stop.sh
    fi
 }
 
-SERVICE_SELECT()
+SERVICE_LIST()
 {
+  echo "##################################################"
+  echo "######      WAS Contaniner ALL START      #######"
   echo "##################################################"
   echo "#####     공통/동원 명령  : ICOM011          ########"
   echo "#####     기준 정보      : IMDM012          ########"
-  echo "#####     공급망/통합관제 : ISCM013           ########"
+  echo "#####     공급망/통합관제  : ISCM013          ########"
   echo "#####     창고 관리      : IWMS014          ########"
   echo "#####     운송 관리      : ITMS015          ########"
   echo "#####     리포팅 툴      : IRPT016          ########"
   echo "##################################################"
- echo " "
- echo " "
-  echo " START/STOP 서비스 명을 입력 하세요(ex : ICOM011) : "
-
-  while read SERVICE
-  do
+  echo " "
+  echo " "
+  echo " "
 }
 
 echo "##################################################"
@@ -85,9 +90,16 @@ do
 case $NUM in
         1)
 #### Function Call
-SERVICE_SELECT
-                cd $JPATH/$SERVICE/bin
+SERVICE_LIST
+echo "############  만약 선택을 잘못하셨다면  CTRL+C로 SCRIPT를 종료하세요! ################"
+echo "############     5초 후에 모든 contaniner가 기동이 시작 합니다.      ###############"
+sleep 5
+for DOMAINS in $SERVICE011 $SERVICE012 $SERVICE013 $SERVICE014 $SERVICE015 $SERVICE016
+  do
+                cd $JPATH/$DOMAINS/bin
                 sh $START
+echo "########### 서비스 PORT 및 프로세서 정상 기동을 체크 합니다. ###############"
+
         sleep  2
 ##### contaniner 명출력###########
 OFFSET=`sed -n -e '/PORT_OFFSET/p'  ./env.sh | head -1 |awk -F "=" '{print $2}'`
@@ -101,15 +113,22 @@ PROC=`ps -ef |grep $CTN |grep -v grep |wc -l`
 
 #### Function Call
        START_PROC
-
+done
         ;;
 
 
         2)
 #### Function Call
-  SERVICE_SELECT
-        cd $JPATH/$SERVICE/bin
-        sh $STOP
+  SERVICE_LIST
+
+  echo "############  만약 선택을 잘못하셨다면  CTRL+C로 SCRIPT를 종료하세요! ################"
+  echo "############     5초 후에 모든 contaniner가 종료를 시작 합니다.      ###############"
+  sleep 5
+
+  for DOMAINS in $SERVICE011 $SERVICE012 $SERVICE013 $SERVICE014 $SERVICE015 $SERVICE016
+    do
+                  cd $JPATH/$DOMAINS/bin
+                  sh $STOP
 
 ##### contaniner PORT_OFFSET ###########
 OFFSET=`sed -n -e '/PORT_OFFSET/p'  ./env.sh | head -1 |awk -F "=" '{print $2}'`
@@ -126,12 +145,12 @@ PROC=`ps -ef |grep $CTN |grep -v grep |wc -l`
 
 #### Function Call
        STOP_PROC
-
+done
         ;;
 
 
 *)
-   echo " ###### Invalid Number  ######i"
+   echo " ###### Invalid Number  #######"
 esac
 
 exit
