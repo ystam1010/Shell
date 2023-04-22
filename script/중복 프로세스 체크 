@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# 중복 Process check 함수
+function check_duplicate() {
+    if ps -ef | grep -v root |grep -q ; then
+        echo "The Firmbanking Process has already started"
+        return 1
+    else
+        echo "Do not execute the Start Firmbanking command."
+        return 0
+    fi
+}
+
+# 중복 파일 체크 예시
+if check_duplicate "file.txt"; then
+    echo "파일을 생성합니다."
+    touch "file.txt"
+fi
+
+
+
+#!/bin/bash
+### 중복 방지 코드 (avoid overrap)
+LOCKFILE=./lock/$(basename $0)
+if [ -f $LOCKFILE ];then
+  P=$(cat $LOCKFILE)
+  if [ -n "$(ps --no-headers -f $P)" ];then
+    echo "already running... exit."
+    exit 1
+  fi
+fi
+echo $$ > $LOCKFILE
+trap 'rm -f "$LOCKFILE"' EXIT #프로그램이 종료 될 경우 해당 파일 삭제
+
+# Main function
+while [ true ]
+do
+    sleep 1
+    date
+done
+
+exit 0
