@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# 새로운 사용자 계정 정보 입력 받기
+read -p "Enter new username: " username
+read -p "Enter password: " password
+read -p "Enter UID (leave blank for default): " uid
+read -p "Enter GID (leave blank for default): " gid
+read -p "Enter home directory (leave blank for default): " home
+
+# 사용자 계정 생성
+if [ -z "$uid" ] && [ -z "$gid" ] && [ -z "$home" ]; then
+    useradd -m $username
+elif [ -z "$gid" ] && [ -z "$home" ]; then
+    useradd -m -u $uid $username
+elif [ -z "$uid" ] && [ -z "$home" ]; then
+    useradd -m -g $gid $username
+elif [ -z "$uid" ] && [ -z "$gid" ]; then
+    useradd -m -d $home $username
+elif [ -z "$uid" ]; then
+    useradd -m -g $gid -d $home $username
+elif [ -z "$gid" ]; then
+    useradd -m -u $uid -d $home $username
+elif [ -z "$home" ]; then
+    useradd -m -u $uid -g $gid $username
+else
+    useradd -m -u $uid -g $gid -d $home $username
+fi
+
+# 비밀번호 설정
+echo "$username:$password" | chpasswd
+
+# 사용자 계정 정보 출력
+echo "New user account created:"
+echo "Username: $username"
+echo "Password: $password"
+echo "UID: ${uid:-default}"
+echo "GID: ${gid:-default}"
+echo "Home directory: ${home:-default}"
