@@ -1,0 +1,48 @@
+#!/bin/bash
+
+TODAY=`date +%Y/%m/%d-%H:%M:%S`
+REMOTE_ADDR="[원격지 IP 주소]"
+REMOTE_USER=[원격지 유저ID]
+REMOTE_DIR="[파일이 존재하는 원격지 디렉토리]"
+LOCAL_DIR="[파일을 가져올 로컬 디렉토리]"
+
+echo $TODAY
+echo sftp shell start
+
+# 쉘 동시수행 체크(쉘 이름 : /home/user1/shell/get_file.sh)
+SHELL_EXEC=`ps -ef | grep "/bin/sh -c [해당 쉘 절대경로(예 : /home/user1/shell/get_file.sh)]" | grep -v grep | grep -v vi | wc -l`
+if [ "$SHELL_EXEC" -gt 1 ]	# 자기 자신을 제외한 shell 수행 시
+then
+  echo shell is already running. end.
+  exit 0
+fi
+
+# 파일 리스트 추출 (FILE_*.txt 파일)
+FILES=`sftp -b - $REMOTE_USER@REMOTE_ADDR <<EOF
+cd $REMOTE_DIR
+ls FILE_*.txt
+EOF`
+
+# 파일 존재여부 확인 후 미존재 시 종료
+FILES=`echo $FILES|sed "s/.*sftp> ls FILE_\*.txt//"`
+if [ ! -n "$FILES" ]
+then
+  echo remote file not exists. end.
+  exit 0
+else
+  echo FILES : ${FILES}
+fi
+
+# SFTP 연동하여 파일들을 가져온 후, 원격 서버에 남아있는 파일을 ./backup 디렉토리로 옮김
+(
+  echo cd $REMOTE_DIR
+  echo lcd $LOCAL_DIR
+  for FILE in $FILES; do
+    echo get $FILE
+    echo rename $FILE $REMOTE_DIR/backup/$FiLE
+  done
+) | sftp -b - $REMOTE_USER@$REMOTE_ADDR
+
+echo sftp shell success end.
+echo "-----------------------"
+exit 0
