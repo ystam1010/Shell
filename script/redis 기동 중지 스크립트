@@ -1,0 +1,196 @@
+#!/bin/bash
+####### Redis group STOP & START & STATUS script
+RETVAL=0
+
+#### Master Server Host
+SERVER="10.10.45.39"
+
+MASTERPORT="6300"
+SLAVEPORT1="6410"
+SLAVEPORT2="6420"
+PASSWD="lghvnet"
+
+MPIDFILE="/app/redis/redis-cluster/master/master-${MASTERPORT}.pid"
+SPIDFILE1="/app/redis/redis-cluster/slave/slave-${SLAVEPORT1}.pid"
+SPIDFILE2="/app/redis/redis-cluster/slave/slave-${SLAVEPORT2}.pid"
+
+
+MCONF="/app/redis/redis-cluster/master/master-${MASTERPORT}.conf"
+SCONF1="/app/redis/redis-cluster/slave/slave-${SLAVEPORT1}.conf"
+SCONF2="/app/redis/redis-cluster/slave/slave-${SLAVEPORT2}.conf"
+
+
+MCHECK_PROCESS=`ps -ef |grep redis-server |grep $MASTERPORT |awk '{print $9}'`
+SCHECK1_PROCESS=`ps -ef |grep redis-server |grep $SLAVEPORT1 |awk '{print $9}'`
+SCHECK2_PROCESS=`ps -ef |grep redis-server |grep $SLAVEPORT2 |awk '{print $9}'`
+
+
+
+
+MASTER_START() {
+        nc -z -v -w 1 ${SERVER} ${MASTERPORT} &> /dev/null; result1=$?
+        if [ "$result1" == 0 ] && [ -f ${MPIDFILE} ]; then
+                echo "Aleady Redis Master started"
+        else
+                echo "STARTING Redis Master ..... "
+
+redis-server $MCONF
+sleep 3
+MCHECK_PROCESS=`ps -ef |grep redis-server |grep $MASTERPORT |awk '{print $9}'`
+result=$(eval "$MCHECK_PROCESS")
+echo "Listen Port: ${result}"
+RETVAL=$?
+echo
+return $RETVAL
+
+fi
+}
+
+SLAVE1_START() {
+        nc -z -v -w 1 ${SERVER} ${SLAVEPORT1} &> /dev/null; result2=$?
+        if [ "$result2" == 0 ] && [ -f ${SPIDFILE2} ]; then
+                echo "Aleady Redis SLAVE1 started"
+        else
+                echo "STARTING Redis Slave1 ..... "
+
+redis-server $SCONF1
+sleep 3
+SCHECK1_PROCESS=`ps -ef |grep redis-server |grep $SLAVEPORT1 |awk '{print $9}'`
+echo "Listen Port : ${SCHECK1_PROCESS}"
+
+RETVAL=$?
+echo
+return $RETVAL
+fi
+}
+
+SLAVE2_START() {
+        nc -z -v -w 1 ${SERVER} ${SLAVEPORT2} &> /dev/null; result3=$?
+        if [ "$result3" == 0 ] && [ -f ${SPIDFILE1} ]; then
+                echo "Aleady Redis SLAVE2 started"
+        else
+                echo "STARTING Redis Slave2 ..... "
+
+redis-server $SCONF2
+sleep 3
+SCHECK2_PROCESS=`ps -ef |grep redis-server |grep $SLAVEPORT2 |awk '{print $9}'`
+echo "Listen Port : ${SCHECK1_PROCESS}"
+RETVAL=$?
+echo
+return $RETVAL
+fi
+}
+############################################################################
+STATUS() {
+        echo -n "#######  Rides STG/DEV Port Check ###############"
+        echo
+        echo redis Process list Port : 6300, 6410, 6420
+        CHECK=("${MCHECK_PROCESS}" "${SCHECK1_PROCESS}" "${SCHECK2_PROCESS}")
+        for process in "${CHECK[@]}";
+        do
+
+         if  [  -n "$process" ]; then
+                result="${process}"
+                 echo "Redis Port : $result"
+         else
+                 echo "redis prosces downs"
+         fi
+ done
+ }
+
+############################### STOP FUNCTION ##################################
+
+MASTER_STOP() {
+        nc -z -v -w 1 ${SERVER} ${MASTERPORT} &> /dev/null; result1=$?
+        if [ "$result1" == 0 ] && [ -f ${MPIDFILE} ]; then
+                echo "Stoping Redis Master "
+                redis-cli -h ${SERVER} -p ${MASTERPORT} -a ${PASSWD} shutdown
+                RETVAL=$?
+                return $RETVAL
+                echo
+        else
+                echo " Aleady Redis Master STOP..... "
+        fi
+}
+
+SLAVE1_STOP() {
+        nc -z -v -w 1 ${SERVER} ${SLAVEPORT1} &> /dev/null; result2=$?
+        if [ "$result2" == 0 ] && [ -f ${MPIDFILE} ]; then
+                echo "Stoping Redis Slave1 stop"
+                redis-cli -h ${SERVER} -p ${SLAVEPORT1} -a ${PASSWD} shutdown
+                RETVAL=$?
+                return $RETVAL
+                echo
+        else
+                echo " Aleady Redis Slave1 STOP..... "
+        fi
+}
+
+SLAVE2_STOP() {
+        nc -z -v -w 1 ${SERVER} ${SLAVEPORT2} &> /dev/null; result3=$?
+        if [ "$result3" == 0 ] && [ -f "${SPIDFILE1}" ]; then
+                echo "Stoping Redis Slave2 stop"
+                redis-cli -h ${SERVER} -p ${SLAVEPORT2} -a ${PASSWD} shutdown
+                RETVAL=$?
+                return $RETVAL
+                echo
+        else
+                echo " Aleady Redis Slave2 STOP..... "
+        fi
+}
+
+
+
+ case "$1" in
+mstart)
+    MASTER_START
+        ;;
+
+s1start)
+
+    SLAVE1_START
+        ;;
+
+s2start)
+
+    SLAVE2_START
+        ;;
+
+mstop)
+        MASTER_STOP
+        ;;
+
+s1stop)
+
+    SLAVE1_STOP
+        ;;
+
+s2stop)
+
+    SLAVE2_STOP
+        ;;
+
+
+allstart)
+        MASTER_START
+        SLAVE1_START
+        SLAVE2_START
+        ;;
+
+allstop)
+        SLAVE2_STOP
+        SLAVE1_STOP
+        MASTER_STOP
+        ;;
+
+status)
+        STATUS
+        ;;
+*)
+
+     echo $"Usage: $0 {allstart|allstop|mstart|s1tart|s2start|mstop|s1stop|s2stop|status}"
+
+     RETVAL=1
+
+esac
+exit $RETVAL
