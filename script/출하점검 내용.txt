@@ -270,3 +270,6 @@ systemctl stop avahi-daemon.service
 :31003 polestar SMS agent (7버전)
 :1556 넷백업 관련 데몬
 :1557 넷백업 관련 데몬
+
+
+업데이트 테스트
